@@ -9,8 +9,18 @@ This tool is integrated into my hobby chess website:
 https://www.gambitaccepted.com
 
 ### Requirements:
-- reportlab
-- python-chess
+- [reportlab](https://pypi.org/project/reportlab/), [Open source reportlab](https://www.reportlab.com/dev/install/open_source_installation/)
+- [chess](https://pypi.org/project/chess/)
+
+```
+pip install -r requirements.txt
+```
+
+Alternatively, for pip3
+
+```
+pip install -r requirements.txt
+```
 
 ### Planned features:
 - more options for styling the document

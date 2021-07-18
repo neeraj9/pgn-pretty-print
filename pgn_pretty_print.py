@@ -21,8 +21,8 @@ from reportlab.platypus.flowables import KeepTogether
 
 
 class GamePrinter:
-    tile_padding = 0.1  # meaning 10% of width/height of tile is padded
-    piece_images_path = 'app/static/images/piece_images/merida/72/'
+    tile_padding = 0.1  # meaning 10% of width/height of tile == padded
+    piece_images_path = 'piece_images/merida/72/'
 
     def __init__(self,
                  pgn,
@@ -103,7 +103,7 @@ class GamePrinter:
             self.tile_length = self.board_length / 8  # in cm
 
     def change_game(self, pgn):
-        if type(pgn) is str and os.path.exists(pgn):
+        if type(pgn) == str and os.path.exists(pgn):
             with open(pgn) as f:
                 self.game = chess.pgn.read_game(f)
         else:
@@ -135,8 +135,8 @@ class GamePrinter:
                        ('VALIGN', (0, 0), (7, 7), 'MIDDLE'),
                        ('BOX', (0, 0), (7, 7), 0.5, colors.grey)]
         # Color cells according to a chess board
-        dark_tile_coords = [(i, j) for j in range(8) for i in range(8) if j % 2 is 1 and i % 2 is 0 or j % 2 is 0 and i % 2 is 1]
-        light_tile_coords = [(i, j) for j in range(8) for i in range(8) if j % 2 is 0 and i % 2 is 0 or j % 2 is 1 and i % 2 is 1]
+        dark_tile_coords = [(i, j) for j in range(8) for i in range(8) if j % 2 == 1 and i % 2 == 0 or j % 2 == 0 and i % 2 == 1]
+        light_tile_coords = [(i, j) for j in range(8) for i in range(8) if j % 2 == 0 and i % 2 == 0 or j % 2 == 1 and i % 2 == 1]
         table_style += [('BACKGROUND', coord, coord, self.dark_tile_color) for coord in dark_tile_coords]
         table_style += [('BACKGROUND', coord, coord, self.light_tile_color) for coord in light_tile_coords]
         return Table(board_setup, colWidths=[self.tile_length * cm] * 8, rowHeights=[self.tile_length * cm] * 8, style=table_style)
@@ -145,7 +145,7 @@ class GamePrinter:
         # [move number (if white to move)] [move (san)] [comment]
         # examples: '1. e4', 'c5'
         move_number = int((halfmove + 2) / 2)
-        white_to_move = halfmove % 2 is 0
+        white_to_move = halfmove % 2 == 0
         # Force print of move number for a black move
         text = '<strong>{}{}</strong>{}'.format('{}. '.format(move_number) if white_to_move else '',
                                                 move.san(),
@@ -189,7 +189,8 @@ class GamePrinter:
         # Generate paragraphs with move text and board diagramms
         paragraph = str()
         for i, move in enumerate(self.game.mainline()):
-            if move.comment and '<*>' in move.comment or any([i == halfmove for halfmove in self.halfmoves_to_be_printed]):
+            #if move.comment and '<*>' in move.comment or any([i == halfmove for halfmove in self.halfmoves_to_be_printed]):
+            if move.has_variation:
                 elements.append(Paragraph(paragraph, self.styles['Move_Text']))
                 elements.append(KeepTogether(self.board_from_FEN(move.board().fen())))
                 paragraph = str()
@@ -221,6 +222,7 @@ def run(args):
                           space_before=args.spaceBefore,
                           space_after=args.spaceAfter,
                           col_gap=args.columnGap)
+    printer.init_reportlab()
     printer.create_document()
 
 
